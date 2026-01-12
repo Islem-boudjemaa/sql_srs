@@ -6,7 +6,21 @@ import duckdb
 # import scipy CE qui est intéressant avec l'éditeur de code c'est qu'il nous affiche en rouge si par exemple le package n'est pas telecharger
 # DE plus une autocomplession est proposé en fonction des packages
 
-st.write("Hello world")
+st.write("""
+SQL SRS 
+Spaced Repetition System SQL practise
+""")
+
+option = st.selectbox(
+    "What would you like to review?",
+    ("Join", "GroupBy", "Windows functions"),
+    index=None,
+    placeholder="Select a theme",
+)
+
+st.write("You selected:",option)
+
+
 data = {
     "a": [1, 2, 3],
     "b": [4, 5, 6]}
