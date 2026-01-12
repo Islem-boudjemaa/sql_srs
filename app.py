@@ -28,6 +28,19 @@ CROSS JOIN food_items
 
 solution = duckdb.sql(answer).df() #Ceci est la solution attendue
 
+
+#ENtre les deux hastags on a rajouté la barre
+# On a rajouté le with afin de le mettre sur le coté et on l'indente avec un tab
+with st.sidebar:
+    option = st.selectbox(
+        "What would you like to review?",
+        ("Join", "GroupBy", "Windows functions"),
+        index=None,
+        placeholder="Select a theme",
+    )
+    st.write("You selected:",option)
+#
+
 st.header("Enter yout code") #C'est juste une entete
 query = st.text_area(label="Votre code sql ici", key="user_input") # le text au dessus de l'input ainsi que la barre ou on écris
 
