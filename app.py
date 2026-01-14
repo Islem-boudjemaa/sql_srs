@@ -1,47 +1,51 @@
 import streamlit as st
 import pandas as pd
 import duckdb
+import io
 
+csv = '''
+beverage,price
+orange juice,2.5
+Expresso,2
+Tea,3
+'''
 
-# import scipy CE qui est intéressant avec l'éditeur de code c'est qu'il nous affiche en rouge si par exemple le package n'est pas telecharger
-# DE plus une autocomplession est proposé en fonction des packages
+beverages = pd.read_csv(io.StringIO(csv))
 
-st.write("""
-SQL SRS 
-Spaced Repetition System SQL practise
-""")
+csv2 = '''
+food_item,food_price
+cookie juice,2.5
+chocolatine,2
+muffin,3
+'''
 
-option = st.selectbox(
-    "What would you like to review?",
-    ("Join", "GroupBy", "Windows functions"),
-    index=None,
-    placeholder="Select a theme",
-)
+food_items = pd.read_csv(io.StringIO(csv2))
 
-st.write("You selected:",option)
+answer = '''
+SELECT * FROM beverages
+CROSS JOIN food_items
+'''
 
+solution = duckdb.sql(answer).df() #Ceci est la solution attendue
 
-data = {
-    "a": [1, 2, 3],
-    "b": [4, 5, 6]}
-df = pd.DataFrame(data)
+st.header("Enter yout code") #C'est juste une entete
+query = st.text_area(label="Votre code sql ici", key="user_input") # le text au dessus de l'input ainsi que la barre ou on écris
 
-
-tab1, tab2, tab3 = st.tabs(["Cat", "Dog", "Owl"])
-
-with tab1:
-    #input_text = st.text_area(label="Entrez votre input")
-    #st.write(input_text)
-    #st.dataframe(df) #Toute la partie enyte tab1 et ce hashtag est juste pour du texte
-    sql_query = st.text_area(label="Entrez votre requète")
-    result = duckdb.query(sql_query)
-    st.write(f"VOus avez entrez la query suivantes :{sql_query}") #LA f_string signifie format string et donc nous permet d'inserer des variables python à l'interieur avec du texte
+if query:
+    result = duckdb.sql(query).df()
     st.dataframe(result)
 
-with tab2:
-    st.header("A dog")
-    st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
+tab2, tab3 = st.tabs(["Tables","Solution"]) #ceci est les onglets
+
+
 
 with tab2:
-    st.header("An owl")
-    st.image("https://static.streamlit.io/examples/owl.jpg", width=200)
+    st.write("table: beverages") # Nous permet d'avoir une entete au dessus de notre table
+    st.dataframe(beverages) #AFfiche la table
+    st.write("table: food_items")
+    st.dataframe(food_items)
+    st.write("expected:")
+    st.dataframe(solution)
+
+with tab3:
+    st.write(answer)
