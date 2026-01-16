@@ -1,35 +1,37 @@
-import streamlit as st
-import pandas as pd
-import duckdb
+# pylint: disable=missing-docstring
 import io
 
-csv = '''
+import duckdb
+import pandas as pd
+import streamlit as st
+
+CSV= """
 beverage,price
 orange juice,2.5
 Expresso,2
 Tea,3
-'''
+"""
 
-beverages = pd.read_csv(io.StringIO(csv))
+beverages = pd.read_csv(io.StringIO(CSV))
 
-csv2 = '''
+CSV2 = """
 food_item,food_price
 cookie juice,2.5
 chocolatine,2
 muffin,3
-'''
+"""
 
-food_items = pd.read_csv(io.StringIO(csv2))
+food_items = pd.read_csv(io.StringIO(CSV2))
 
-answer = '''
+ANSWER_STR = """
 SELECT * FROM beverages
 CROSS JOIN food_items
-'''
+"""
 
-solution = duckdb.sql(answer).df() #Ceci est la solution attendue
+solution_df = duckdb.sql(ANSWER_STR).df()  # Ceci est la solution_df attendue
 
 
-#ENtre les deux hastags on a rajouté la barre
+# ENtre les deux hastags on a rajouté la barre
 # On a rajouté le with afin de le mettre sur le coté et on l'indente avec un tab
 with st.sidebar:
     option = st.selectbox(
@@ -38,27 +40,56 @@ with st.sidebar:
         index=None,
         placeholder="Select a theme",
     )
-    st.write("You selected:",option)
-#
+    st.write("You selected:", option)
 
-st.header("Enter yout code") #C'est juste une entete
-query = st.text_area(label="Votre code sql ici", key="user_input") # le text au dessus de l'input ainsi que la barre ou on écris
+
+st.header("Enter yout code")  # C'est juste une entete
+query = st.text_area(
+    label="Votre code sql ici", key="user_input"
+)  # le text au dessus de l'input ainsi que la barre ou on écris
 
 if query:
     result = duckdb.sql(query).df()
     st.dataframe(result)
 
-tab2, tab3 = st.tabs(["Tables","Solution"]) #ceci est les onglets
+    if len(result.columns) != len(
+        solution_df.columns  # On compare resultat. column à sokution.column
+    ):  # replace with try result = result[solution_df.columns]
+        st.write("Some columns are missing")
 
+    try:
+        result = result[
+            solution_df.columns
+        ]  # Elle permet de piocher dans result les colonne dans l'ordre des colonne de solution_df
+        # SAuf qu'il nous affiche une Key error
+        st.dataframe(
+            result.compare(solution_df)
+        )  # et on mettant ici l'erreur de ne s'affiche plus vid 22
+    except KeyError as a:
+        st.write("Some columns are missing")
+
+    n_lines_difference = result.shape[0] - solution_df.shape[0]
+    if n_lines_difference != 0:
+        st.write(
+            f"result has a {n_lines_difference} lines difference with the solution_df"
+        )
+
+        # 'TU verras on va lui changer de place et le mettre à
+        # la ligne 59
+        # 'st.dataframe(result.compare(solution_df))
+
+tab2, tab3 = st.tabs(["Tables", "Solution"])  # ceci est les onglets
 
 
 with tab2:
-    st.write("table: beverages") # Nous permet d'avoir une entete au dessus de notre table
-    st.dataframe(beverages) #AFfiche la table
+    st.write(
+        "table: beverages"
+    )  # Nous permet d'avoir une entete au dessus de notre table
+    st.dataframe(beverages)  # AFfiche la table
     st.write("table: food_items")
     st.dataframe(food_items)
     st.write("expected:")
-    st.dataframe(solution)
+    st.dataframe(solution_df)
 
 with tab3:
-    st.write(answer)
+    st.write(ANSWER_STR)
