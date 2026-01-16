@@ -1,0 +1,16 @@
+name: check_code_quality
+#On veut qu'elle se déclenche eu moment de la PULL_R
+on: pull_request
+jobs: #Ce qu'elle doit faire
+  black: # Le premier c'est le lancement de black
+    runs-on: ubuntu-20.04 # Sur quoi
+    steps:
+      - uses: actions/checkout@v4 #Permet de check le repos
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+      - run: | # c'est du bash multi ligne d'ou le |
+          python -m pip install --upgrade pip
+          pip install black
+      - run: |
+          black --check --verbose .
